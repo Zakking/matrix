@@ -7,22 +7,26 @@ import com.humanup.matrix.vo.PersonVO;
 import com.humanup.matrix.vo.ProfileVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class ProfileBSImpl implements ProfileBS {
 
     @Autowired
     private ProfileDAO profileDAO;
 
     @Override
+    @Transactional
     public boolean createProfile(ProfileVO profileVO) {
-        Profile profileToSave =new Profile.Builder()
-                .setProfileTitle(profileVO.getProfileTitle())
-                .setProfileDescription(profileVO.getProfileDescription())
+        Profile profileToSave = Profile.builder()
+                .profileTitle(profileVO.getProfileTitle())
+                .profileDescription(profileVO.getProfileDescription())
                 .build();
         return  profileDAO.save(profileToSave)!=null;
     }
@@ -31,10 +35,10 @@ public class ProfileBSImpl implements ProfileBS {
     public ProfileVO findProfileByTitle(String profileTitle) {
         Optional<Profile> profileFinded = Optional.ofNullable(profileDAO.findByProfileTitle(profileTitle));
         if(profileFinded.isPresent()) {
-            return new ProfileVO.Builder()
-                    .setProfileTitle(profileFinded.get().getProfileTitle())
-                    .setProfileDescription(profileFinded.get().getProfileDescription())
-                    .setCountPerson(null!=profileFinded.get().getPersonList()?profileFinded.get().getPersonList().size():0)
+            return  ProfileVO.builder()
+                    .profileTitle(profileFinded.get().getProfileTitle())
+                    .profileDescription(profileFinded.get().getProfileDescription())
+                    .countPerson(null!=profileFinded.get().getPersonList()?profileFinded.get().getPersonList().size():0)
                     .build();
         }
         return null;
@@ -44,10 +48,10 @@ public class ProfileBSImpl implements ProfileBS {
     public List<ProfileVO> findListProfile() {
         return profileDAO.findAll()
                 .stream()
-                .map(profileFinded -> new ProfileVO.Builder()
-                        .setProfileTitle(profileFinded.getProfileTitle())
-                        .setProfileDescription(profileFinded.getProfileDescription())
-                        .setCountPerson(null!=profileFinded.getPersonList()?profileFinded.getPersonList().size():0)
+                .map(profileFinded ->  ProfileVO.builder()
+                        .profileTitle(profileFinded.getProfileTitle())
+                        .profileDescription(profileFinded.getProfileDescription())
+                        .countPerson(null!=profileFinded.getPersonList()?profileFinded.getPersonList().size():0)
                         .build())
                 .collect(Collectors.toList());
 
@@ -59,10 +63,10 @@ public class ProfileBSImpl implements ProfileBS {
         if(listProfileFinded.isPresent()) {
             return listProfileFinded.get()
                     .stream()
-                    .map(profileFinded -> new ProfileVO.Builder()
-                            .setProfileTitle(profileFinded.getProfileTitle())
-                            .setProfileDescription(profileFinded.getProfileDescription())
-                            .setCountPerson(null!=profileFinded.getPersonList()?profileFinded.getPersonList().size():0)
+                    .map(profileFinded ->  ProfileVO.builder()
+                            .profileTitle(profileFinded.getProfileTitle())
+                            .profileDescription(profileFinded.getProfileDescription())
+                            .countPerson(null!=profileFinded.getPersonList()?profileFinded.getPersonList().size():0)
                             .build())
                      .collect(Collectors.toList());
         }
